@@ -1,0 +1,35 @@
+[build]
+  # Répertoire contenant les fichiers à déployer (le frontend)
+  publish = "frontend"
+  
+  # Commande de build (optionnel, car c'est un site statique)
+  # command = ""
+
+[build.environment]
+  # Variables d'environnement pour le frontend
+  # L'URL de l'API backend sera définie dans les paramètres Netlify
+  NODE_VERSION = "18"
+
+# Redirections pour le SPA (Single Page Application)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Headers de sécurité
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Headers CORS pour les appels API
+[[headers]]
+  for = "/api/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, POST, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type, Authorization"
+

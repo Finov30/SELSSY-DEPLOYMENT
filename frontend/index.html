@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAPH PANEL - Demande de Devis</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1><i class="fas fa-file-invoice"></i> RAPH PANEL</h1>
+            <p>Sélectionnez vos produits pour créer une demande de devis</p>
+        </header>
+
+        <!-- Navigation Steps -->
+        <div class="steps">
+            <div class="step active" id="step1">
+                <div class="step-number">1</div>
+                <div class="step-label">Sélection Produits</div>
+            </div>
+            <div class="step" id="step2">
+                <div class="step-number">2</div>
+                <div class="step-label">Adresse Livraison</div>
+            </div>
+            <div class="step" id="step3">
+                <div class="step-number">3</div>
+                <div class="step-label">Confirmation</div>
+            </div>
+        </div>
+
+        <!-- Step 1: Product Selection -->
+        <div class="step-content active" id="step1-content">
+            <div class="product-selection">
+                <div class="category-selector">
+                    <h2>Sélectionnez une catégorie de produit</h2>
+                    <select id="categorySelect" class="category-dropdown">
+                        <option value="">Choisissez une catégorie...</option>
+                    </select>
+                </div>
+
+                <div class="color-selector">
+                    <h3>Filtrer par couleur</h3>
+                    <select id="colorSelect" class="color-dropdown">
+                        <option value="">Toutes les couleurs</option>
+                    </select>
+                </div>
+
+                <div class="size-selector">
+                    <h3>Filtrer par taille de cadre</h3>
+                    <select id="sizeSelect" class="size-dropdown">
+                        <option value="">Toutes les tailles</option>
+                    </select>
+                </div>
+
+                <!-- Filtres binaires -->
+                <div class="binary-filters" id="binaryFilters" style="display: none;">
+                    <h3>Filtres de caractéristiques</h3>
+                    <div class="filter-row">
+                        <label class="filter-checkbox">
+                            <input type="checkbox" id="vitreFilter" value="vitre">
+                            <span class="checkmark"></span>
+                            Vitre
+                        </label>
+                        <label class="filter-checkbox">
+                            <input type="checkbox" id="rehausseFilter" value="rehausse">
+                            <span class="checkmark"></span>
+                            Rehausse
+                        </label>
+
+                        <label class="filter-checkbox" id="possibiliteChevaletFilterContainer" style="display: none;">
+                            <input type="checkbox" id="possibiliteChevaletFilter" value="possibilite_chevalet">
+                            <span class="checkmark"></span>
+                            Chevalet
+                        </label>
+                    </div>
+                </div>
+
+                <div class="products-grid" id="productsGrid">
+                    <!-- Les produits seront chargés ici dynamiquement -->
+                </div>
+
+                <div class="load-more-container" id="loadMoreContainer" style="display: none;">
+                    <button id="loadMoreBtn" class="btn btn-secondary load-more-btn">
+                        <i class="fas fa-plus"></i> Voir plus de produits
+                    </button>
+                </div>
+
+                <div class="selected-products">
+                    <h3>Produits sélectionnés</h3>
+                    
+                    <!-- Jauge de coût d'achat HT 2025 -->
+                    <div class="cost-gauge-container">
+                        <div class="gauge-header">
+                            <h4>Panier minimum</h4>
+                            <div class="gauge-info">
+                                <span id="currentCost">0</span>€ / <span id="maxCost">1000</span>€ minimum
+                            </div>
+                        </div>
+                        <div class="gauge-wrapper">
+                            <div class="gauge-background">
+                                <div class="gauge-fill" id="gaugeFill"></div>
+                            </div>
+                            <div class="gauge-percentage" id="gaugePercentage">0%</div>
+                        </div>
+                        <div class="gauge-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Produits sélectionnés:</span>
+                                <span class="stat-value" id="selectedCount">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Valeur du panier:</span>
+                                <span class="stat-value" id="totalCost">0€</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="selectedProductsList" class="selected-list">
+                        <!-- Les produits sélectionnés apparaîtront ici -->
+                    </div>
+                    <div class="total-section">
+                        <div class="total-item">
+                            <span>Type de demande:</span>
+                            <span id="totalHT">Demande de devis</span>
+                        </div>
+                        <div class="total-item">
+                            <span>Statut:</span>
+                            <span id="totalTTC">En attente de devis</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Zone de saisie pour les notes -->
+                    <div class="notes-section">
+                        <h4>Pour des demandes spécifiques</h4>
+                        <div class="form-group">
+                            <textarea id="productNotes" name="productNotes" rows="4" placeholder="Décrivez vos demandes spécifiques, besoins particuliers, ou informations complémentaires concernant vos produits sélectionnés..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="navigation-buttons">
+                    <button id="nextStep1" class="btn btn-primary" disabled>
+                        Continuer <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Delivery Address -->
+        <div class="step-content" id="step2-content">
+            <div class="delivery-form">
+                <h2>Adresse de livraison</h2>
+                <form id="deliveryForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="firstName">Prénom *</label>
+                            <input type="text" id="firstName" name="firstName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName">Nom *</label>
+                            <input type="text" id="lastName" name="lastName" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="companyName">Nom de l'entreprise</label>
+                        <input type="text" id="companyName" name="companyName">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="siren">SIREN</label>
+                            <input type="text" id="siren" name="siren" pattern="[0-9]{9}" title="Le SIREN doit contenir 9 chiffres">
+                        </div>
+                        <div class="form-group">
+                            <label for="siret">SIRET</label>
+                            <input type="text" id="siret" name="siret" pattern="[0-9]{14}" title="Le SIRET doit contenir 14 chiffres">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email *</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone">Téléphone *</label>
+                        <input type="tel" id="phone" name="phone" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="address">Adresse *</label>
+                        <input type="text" id="address" name="address" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="postalCode">Code postal *</label>
+                            <input type="text" id="postalCode" name="postalCode" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="city">Ville *</label>
+                            <input type="text" id="city" name="city" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="country">Pays *</label>
+                        <select id="country" name="country" required>
+                            <option value="">Sélectionnez un pays...</option>
+                            <option value="France">France</option>
+                            <option value="Belgique">Belgique</option>
+                            <option value="Suisse">Suisse</option>
+                            <option value="Luxembourg">Luxembourg</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="notes">Notes de livraison</label>
+                        <textarea id="notes" name="notes" rows="3"></textarea>
+                    </div>
+                    
+                    <!-- Section adresse de facturation -->
+                    <div class="billing-section">
+                        <div class="form-group checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="sameBillingAddress" name="sameBillingAddress" checked>
+                                Adresse de facturation identique à l'adresse de livraison
+                            </label>
+                        </div>
+                        
+                        <div id="billingAddressFields" class="billing-address-fields" style="display: none;">
+                            <h3>Adresse de facturation</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="billingFirstName">Prénom *</label>
+                                    <input type="text" id="billingFirstName" name="billingFirstName" disabled>
+                                </div>
+                                <div class="form-group">
+                                    <label for="billingLastName">Nom *</label>
+                                    <input type="text" id="billingLastName" name="billingLastName" disabled>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="billingCompanyName">Nom de l'entreprise</label>
+                                <input type="text" id="billingCompanyName" name="billingCompanyName" disabled>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="billingSiren">SIREN</label>
+                                    <input type="text" id="billingSiren" name="billingSiren" pattern="[0-9]{9}" title="Le SIREN doit contenir 9 chiffres" disabled>
+                                </div>
+                                <div class="form-group">
+                                    <label for="billingSiret">SIRET</label>
+                                    <input type="text" id="billingSiret" name="billingSiret" pattern="[0-9]{14}" title="Le SIRET doit contenir 14 chiffres" disabled>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="billingAddress">Adresse *</label>
+                                <input type="text" id="billingAddress" name="billingAddress" disabled>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="billingPostalCode">Code postal *</label>
+                                    <input type="text" id="billingPostalCode" name="billingPostalCode" disabled>
+                                </div>
+                                <div class="form-group">
+                                    <label for="billingCity">Ville *</label>
+                                    <input type="text" id="billingCity" name="billingCity" disabled>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="billingCountry">Pays *</label>
+                                <select id="billingCountry" name="billingCountry" disabled>
+                                    <option value="">Sélectionnez un pays...</option>
+                                    <option value="France">France</option>
+                                    <option value="Belgique">Belgique</option>
+                                    <option value="Suisse">Suisse</option>
+                                    <option value="Luxembourg">Luxembourg</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="navigation-buttons">
+                    <button id="prevStep2" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Retour
+                    </button>
+                    <button id="nextStep2" class="btn btn-primary">
+                        Continuer <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: Confirmation -->
+        <div class="step-content" id="step3-content">
+            <div class="confirmation">
+                <h2>Récapitulatif de votre demande de devis</h2>
+                
+                <div class="order-summary">
+                    <div class="summary-section">
+                        <h3>Produits commandés</h3>
+                        <div id="orderProductsList" class="order-products">
+                            <!-- Récapitulatif des produits -->
+                        </div>
+                    </div>
+                    
+                    <div class="summary-section">
+                        <h3>Adresse de livraison</h3>
+                        <div id="orderAddress" class="order-address">
+                            <!-- Adresse de livraison -->
+                        </div>
+                    </div>
+                    
+                    <div class="summary-section">
+                        <h3>Informations de devis</h3>
+                        <div class="order-totals">
+                            <div class="total-item">
+                                <span>Type de demande:</span>
+                                <span id="orderTotalHT">Demande de devis</span>
+                            </div>
+                            <div class="total-item">
+                                <span>Statut:</span>
+                                <span id="orderTotalTTC">En attente de devis</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="navigation-buttons">
+                    <button id="prevStep3" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Retour
+                    </button>
+                    <button id="submitOrder" class="btn btn-success">
+                        <i class="fas fa-check"></i> Soumettre la demande de devis
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div id="loadingOverlay" class="loading-overlay">
+            <div class="loading-spinner">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Chargement...</p>
+            </div>
+        </div>
+
+        <!-- Success Modal -->
+        <div id="successModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <i class="fas fa-check-circle success-icon"></i>
+                    <h2>Demande de devis soumise !</h2>
+                </div>
+                <div class="modal-body">
+                    <p>Votre demande de devis a été soumise avec succès.</p>
+                    <p>Numéro de demande: <strong id="orderNumber"></strong></p>
+                    
+                    <!-- Informations Sellsy -->
+                    <div id="sellsyInfo" style="display: none; margin: 15px 0; padding: 10px; background-color: #f0f8ff; border-radius: 5px; border-left: 4px solid #007bff;">
+                        <h3 style="margin: 0 0 10px 0; color: #007bff;">
+                            <i class="fas fa-crm"></i> Intégration CRM Sellsy
+                        </h3>
+                        <p style="margin: 5px 0;"><strong>Client ID:</strong> <span id="sellsyClientId"></span></p>
+                        <p style="margin: 5px 0;"><strong>Opportunité ID:</strong> <span id="sellsyOpportunityId"></span></p>
+                    </div>
+                    
+                    <div id="sellsyError" style="display: none; margin: 15px 0; padding: 10px; background-color: #fff0f0; border-radius: 5px; border-left: 4px solid #dc3545;">
+                        <h3 style="margin: 0 0 10px 0; color: #dc3545;">
+                            <i class="fas fa-exclamation-triangle"></i> Erreur d'intégration Sellsy
+                        </h3>
+                        <p id="sellsyErrorMessage" style="margin: 5px 0;"></p>
+                    </div>
+                    
+                    <p>Nous vous contacterons bientôt pour vous proposer un devis personnalisé.</p>
+                </div>
+                <div class="modal-footer">
+                    <button id="newOrder" class="btn btn-primary">Nouvelle demande de devis</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 
