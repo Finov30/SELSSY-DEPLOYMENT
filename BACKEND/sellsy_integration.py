@@ -554,13 +554,13 @@ class SellsyAPI:
         }
         
         try:
-            print(f"\n[API CALL] Client.getOne - Requête: {json.dumps(sellsy_request, indent=2, ensure_ascii=False)}")
+            # print(f"\n[API CALL] Client.getOne - Requête: {json.dumps(sellsy_request, indent=2, ensure_ascii=False)}")
             response = self._make_request('POST', '', sellsy_request)
-            print(f"[API CALL] Client.getOne - Réponse complète: {json.dumps(response, indent=2, ensure_ascii=False, default=str)}")
+            # print(f"[API CALL] Client.getOne - Réponse complète: {json.dumps(response, indent=2, ensure_ascii=False, default=str)}")
             
             if response.get('status') == 'success' and response.get('response'):
                 client_data = response.get('response', {})
-                print(f"[API CALL] Client.getOne - Données client extraites: {json.dumps(client_data, indent=2, ensure_ascii=False, default=str)}")
+                # print(f"[API CALL] Client.getOne - Données client extraites: {json.dumps(client_data, indent=2, ensure_ascii=False, default=str)}")
                 return {'id': client_id, **client_data}
             else:
                 print(f"[API CALL] Client.getOne - Erreur dans la réponse: {response.get('error')}")
