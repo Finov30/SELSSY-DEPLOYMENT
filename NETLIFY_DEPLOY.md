@@ -18,29 +18,33 @@ Netlify ne peut **pas** héberger directement un serveur Flask Python.
 
 ### Option 1 : Déploiement via Git (Recommandé)
 
-1. **Pousser le code sur GitHub/GitLab**
+1. **Pousser le code sur GitHub**
    ```bash
    git add .
-   git commit -m "Préparation pour Netlify"
+   git commit -m "Déploiement final"
    git push origin main
    ```
 
-2. **Connecter Netlify à votre repository**
+2. **Connecter Netlify**
    - Allez sur [app.netlify.com](https://app.netlify.com)
-   - Cliquez sur "Add new site" > "Import an existing project"
-   - Connectez votre repository Git
-   - Configurez les paramètres de build :
-     - **Base directory** : (laisser vide)
-     - **Build command** : (laisser vide, site statique)
-     - **Publish directory** : `UI`
+   - "Add new site" > "Import an existing project" > GitHub
+   - Sélectionnez votre dépôt.
+   - **Important** : Netlify va détecter automatiquement la configuration grâce au fichier `netlify.toml` à la racine.
+   - Cliquez sur **Deploy**.
 
-3. **Configurer les variables d'environnement**
-   - Dans Netlify : Site settings > Environment variables
-   - Ajoutez : `VITE_API_URL` = `https://votre-backend.herokuapp.com/api`
-   - (Remplacez par l'URL réelle de votre backend)
-
-4. **Déployer**
-   - Netlify déploiera automatiquement à chaque push
+3. **Configurer la connexion au Backend (CRUCIAL)**
+   - Une fois le site créé, allez dans **Site configuration** > **Build & deploy** > **Snippet Injection**.
+   - Cliquez sur **Add snippet**.
+   - Sélectionnez **Insert before `</head>`**.
+   - Nom : `API Config`
+   - Contenu HTML :
+     ```html
+     <script>
+       window.API_BASE_URL = "https://web-production-3cc839.up.railway.app/api";
+     </script>
+     ```
+   - Sauvegardez.
+   - Allez dans l'onglet **Deploys** et cliquez sur **Trigger deploy** > **Deploy site** pour appliquer le changement.
 
 ### Option 2 : Déploiement via Netlify CLI
 
