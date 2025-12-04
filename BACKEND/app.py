@@ -39,62 +39,51 @@ def load_products():
     """Charge tous les produits depuis les fichiers Excel"""
     all_products = []
     
-    print(f"Recherche des fichiers Excel dans: {DATA_DIR}")
-    print(f"Chemin absolu: {DATA_DIR.absolute()}")
+    print(f"Chargement des produits depuis: {DATA_DIR}")
+    
+    # Colonnes nécessaires uniquement (indices basés sur votre code original)
+    # 0: Code, 1: Type, 2: Format, 9: Code Sellsy/Ref Atelier, 14: Nom, 
+    # 17,18,19,20: Binaires, 30: Desc, 32: Cout
+    # usecols=[0, 1, 2, 9, 14, 17, 18, 19, 20, 30, 32]
     
     for excel_file in DATA_DIR.glob("*.xlsx"):
         try:
-            print(f"Lecture du fichier: {excel_file}")
+            # print(f"Lecture: {excel_file.name}") # Commenté pour réduire logs
             
             # Lire le fichier Excel en ignorant les 3 premières lignes d'en-tête
+            # Optimisation: ne lire que si nécessaire, mais pandas charge tout par défaut
             df = pd.read_excel(excel_file, header=None, skiprows=3)
             
-            product_name = excel_file.stem  # Nom du fichier sans extension
-            print(f"Catégorie: {product_name}")
-            print(f"Colonnes disponibles: {df.columns.tolist()}")
-            print(f"Nombre de lignes: {len(df)}")
-            
-            # Mapping des colonnes selon la structure réelle des fichiers
-            # Colonne 0: Code produit, Colonne 1: Type cadre, Colonne 2: Format, 
-            # Colonne 14: Nom du cadre (ex: ANDREA), Colonne 32: Coût achat HT 2025
+            product_name = excel_file.stem
             
             # Filtrer les lignes avec des données valides (code produit non-null)
-            df = df.dropna(subset=[0])  # Supprimer les lignes sans code produit
-            print(f"Nombre de lignes après filtrage: {len(df)}")
+            df = df.dropna(subset=[0])
             
             for _, row in df.iterrows():
                 try:
                     # Récupérer les valeurs des colonnes selon la structure réelle
-                    code_produit_sellsy = clean_value(row[9])  # Colonne SELLSY (ex: "050612 - GAELLE 80")
+                    code_produit_sellsy = clean_value(row[9])  # Colonne SELLSY
                     # Extraire juste le code (avant le tiret)
                     code_produit = code_produit_sellsy.split(' - ')[0].strip() if code_produit_sellsy and ' - ' in str(code_produit_sellsy) else code_produit_sellsy
-
+                    
                     type_cadre = clean_value(row[1])
                     format_cadre = clean_value(row[2])
-                    nom_cadre = clean_value(row[14])  # Nom du cadre (ex: ANDREA)
-                    cout_achat = clean_value(row[32])  # COUT ACHAT HT 2025 (colonne 32)
+                    nom_cadre = clean_value(row[14])
+                    cout_achat = clean_value(row[32])
                     
-                    # Colonne J (index 9) : Référence Atelier
-                    reference_atelier = clean_value(row[9])  # Colonne J
-                    # Colonne AE (index 30) : DESCRIPTION MAISON RAPHAEL
-                    description_maison_raphael = clean_value(row[30])  # Colonne AE
+                    reference_atelier = clean_value(row[9])
+                    description_maison_raphael = clean_value(row[30])
                     
-                    # Récupérer les valeurs binaires
-                    vitre_binaire = clean_value(row[17])  # VITRE BINAIRE (1/0)
-                    rehausse_binaire = clean_value(row[18])  # REHAUSSE BINAIRE (1/0)
-                    chevalet_binaire = clean_value(row[19])  # CHEVALET BINAIRE (1/0)
-                    possibilite_chevalet_binaire = clean_value(row[20])  # POSSIBILITE CHEVALET BINAIRE (1/0)
+                    vitre_binaire = clean_value(row[17])
+                    rehausse_binaire = clean_value(row[18])
+                    chevalet_binaire = clean_value(row[19])
+                    possibilite_chevalet_binaire = clean_value(row[20])
                     
-                    # Vérifier que nous avons les données essentielles
                     if code_produit and format_cadre:
-                        # Construire le nom commercial
                         nom_commercial = f"{nom_cadre} {format_cadre}"
-                        
-                        # Si le nom du cadre est vide, utiliser le type de cadre
                         if not nom_cadre or nom_cadre == '' or nom_cadre == 'nan':
                             nom_commercial = f"{type_cadre} {format_cadre}"
                         
-                        # Vérifier que nous avons au moins un nom de produit
                         if nom_commercial and nom_commercial != '' and nom_commercial != 'nan':
                             product_data = {
                                 'product_category': product_name,
@@ -108,21 +97,20 @@ def load_products():
                                 'rehausse_binaire': rehausse_binaire,
                                 'chevalet_binaire': chevalet_binaire,
                                 'possibilite_chevalet_binaire': possibilite_chevalet_binaire,
-                                'reference_atelier': reference_atelier,  # Colonne J
-                                'description_maison_raphael': description_maison_raphael  # Colonne AE
+                                'reference_atelier': reference_atelier,
+                                'description_maison_raphael': description_maison_raphael
                             }
                             all_products.append(product_data)
                         
-                except Exception as row_error:
-                    print(f"Erreur lors du traitement de la ligne {_}: {row_error}")
+                except Exception:
                     continue
             
-            print(f"Produits ajoutés pour {product_name}: {len([p for p in all_products if p['product_category'] == product_name])}")
+            # print(f"  -> {len(df)} produits chargés pour {product_name}")
                 
         except Exception as e:
-            print(f"Erreur lors de la lecture de {excel_file}: {e}")
+            print(f"Erreur lecture {excel_file.name}: {e}")
     
-    print(f"Total des produits chargés: {len(all_products)}")
+    print(f"Total produits chargés: {len(all_products)}")
     return all_products
 
 def get_available_sizes(products):
