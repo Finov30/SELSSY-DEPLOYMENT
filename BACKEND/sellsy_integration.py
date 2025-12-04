@@ -53,6 +53,9 @@ class SellsyAPI:
             "do_in": json.dumps(data) if data else "{}"
         }
         
+        # Pause pour éviter le Rate Limit API Sellsy
+        time.sleep(1.0)
+        
         try:
             if method.upper() == 'GET':
                 response = requests.get(url, headers=headers, params=request_data, timeout=SELLSY_CONFIG['timeout'])
@@ -61,12 +64,9 @@ class SellsyAPI:
             else:
                 raise ValueError(f"Méthode HTTP non supportée: {method}")
             
-            # Debug logs (décommenter si nécessaire)
+            # Debug logs (REDUIT POUR EVITER RATE LIMIT LOGS)
             # print(f"URL: {url}")
-            # print(f"Headers: {headers}")
-            # print(f"Request Data: {request_data}")
             # print(f"Response Status: {response.status_code}")
-            # print(f"Response Text: {response.text[:500]}")
             
             response.raise_for_status()
             
@@ -728,7 +728,7 @@ class SellsyAPI:
 # Instance globale de l'API Sellsy
 sellsy_api = SellsyAPI(SELLSY_CONFIG['consumer_token'], SELLSY_CONFIG['consumer_secret'])
 
-def create_client_and_opportunity(order_data: Dict) -> Dict:
+    def create_client_and_opportunity(order_data: Dict) -> Dict:
     """
     Crée un client et une opportunité dans Sellsy à partir des données de commande
     
@@ -739,17 +739,12 @@ def create_client_and_opportunity(order_data: Dict) -> Dict:
         Dictionnaire avec les résultats de la création
     """
     try:
-        print("\n\n" + "="*80, flush=True)
-        print("="*80, flush=True)
-        print("=== DÉBUT create_client_and_opportunity - NOUVEAU CODE ===", flush=True)
-        print("="*80, flush=True)
-        print("="*80 + "\n", flush=True)
-        sys.stdout.flush()
+        print("\n=== DÉBUT create_client_and_opportunity ===", flush=True)
         
         delivery_address = order_data.get('delivery_address', {})
         selected_products = order_data.get('selected_products', [])
         
-        # Préparation des données client avec TOUS les champs disponibles
+        # Préparation des données client
         client_data = {
             'first_name': delivery_address.get('firstName', ''),
             'last_name': delivery_address.get('lastName', ''),
