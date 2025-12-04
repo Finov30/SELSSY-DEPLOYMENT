@@ -891,19 +891,21 @@ def create_client_and_opportunity(order_data: Dict) -> Dict:
                 print(f"\nStructure de la réponse (response): {json.dumps(response_data, indent=2, ensure_ascii=False, default=str)}")
                 
                 # L'API Sellsy peut retourner l'ID de différentes manières
-                delivery_address_id = (
-                    response_data.get('address_id') or 
-                    response_data.get('id') or 
-                    response_data.get('addressid') or
-                    str(response_data) if isinstance(response_data, (int, str)) else None
-                )
+                delivery_address_id = None
+                if isinstance(response_data, dict):
+                    delivery_address_id = (
+                        response_data.get('address_id') or 
+                        response_data.get('id') or 
+                        response_data.get('addressid')
+                    )
+                elif isinstance(response_data, (int, str)):
+                    delivery_address_id = str(response_data)
                 
                 print(f"\n✓ Adresse de livraison créée avec l'ID: {delivery_address_id}")
-                print(f"Tentatives de récupération de l'ID:")
-                print(f"  - address_id: {response_data.get('address_id')}")
-                print(f"  - id: {response_data.get('id')}")
-                print(f"  - addressid: {response_data.get('addressid')}")
-                print(f"  - response direct: {response_data if isinstance(response_data, (int, str)) else 'N/A'}")
+                
+                if not delivery_address_id:
+                     # Tentative de fallback sur les logs de debug
+                    print(f"Tentatives de récupération de l'ID échouées sur: {response_data}")
                 
                 # Mettre à jour le client pour définir cette adresse comme adresse de livraison principale
                 if delivery_address_id:
