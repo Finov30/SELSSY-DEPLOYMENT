@@ -109,7 +109,7 @@ Le backend Flask doit être hébergé séparément. Options recommandées :
 Les fichiers nécessaires pour le déploiement Railway sont déjà placés à la racine du projet :
 - `Procfile` : Indique à Railway comment lancer l'application (`web: gunicorn --chdir BACKEND app:app`)
 - `requirements.txt` : Liste les dépendances Python
-- `runtime.txt` : Spécifie la version de Python
+- (Le fichier `runtime.txt` a été supprimé pour éviter les conflits avec Netlify. Railway utilisera une version par défaut.)
 
 ### Modifier `BACKEND/app.py` (Déjà fait)
 L'application est déjà configurée pour utiliser le port fourni par l'environnement :

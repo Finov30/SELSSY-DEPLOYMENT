@@ -1,1 +1,1 @@
-web: gunicorn --chdir BACKEND app:app
+web: gunicorn --chdir BACKEND app:app --timeout 120
