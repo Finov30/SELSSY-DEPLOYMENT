@@ -728,7 +728,7 @@ class SellsyAPI:
 # Instance globale de l'API Sellsy
 sellsy_api = SellsyAPI(SELLSY_CONFIG['consumer_token'], SELLSY_CONFIG['consumer_secret'])
 
-    def create_client_and_opportunity(order_data: Dict) -> Dict:
+def create_client_and_opportunity(order_data: Dict) -> Dict:
     """
     Crée un client et une opportunité dans Sellsy à partir des données de commande
     
