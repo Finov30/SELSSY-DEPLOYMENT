@@ -779,12 +779,9 @@ def create_client_and_opportunity(order_data: Dict) -> Dict:
                 'country': delivery_address.get('billingCountry', 'France')
             }
         
-        # Vérification si le client existe déjà
-        print("\n" + "="*80, flush=True)
-        print("ÉTAPE 1: Vérification/Création du client", flush=True)
-        print("="*80, flush=True)
-        print(f"Email recherché: {client_data['email']}", flush=True)
-        print(f"Données client préparées: {json.dumps(client_data, indent=2, ensure_ascii=False)}", flush=True)
+        # Si le client existe déjà
+        print(f"\nEmail recherché: {client_data['email']}", flush=True)
+        # print(f"Données client préparées: {json.dumps(client_data, indent=2, ensure_ascii=False)}", flush=True)
         sys.stdout.flush()
         
         existing_client = sellsy_api.search_client_by_email(client_data['email'])
@@ -792,11 +789,10 @@ def create_client_and_opportunity(order_data: Dict) -> Dict:
         
         if existing_client:
             client_id = existing_client.get('id') or existing_client.get('thirdid')
-            print(f"\n✓ Client existant trouvé: {client_id}")
-            print(f"Structure complète du client existant: {json.dumps(existing_client, indent=2, ensure_ascii=False, default=str)}")
+            print(f"✓ Client existant trouvé: {client_id}")
+            # print(f"Structure complète du client existant: {json.dumps(existing_client, indent=2, ensure_ascii=False, default=str)}")
             
             # Récupérer l'ID de l'adresse principale du client existant
-            # Essayer plusieurs champs possibles selon la structure de la réponse Sellsy
             if existing_client.get('addressid'):
                 default_address_id = existing_client.get('addressid')
             elif existing_client.get('address_id'):
@@ -812,61 +808,56 @@ def create_client_and_opportunity(order_data: Dict) -> Dict:
                         default_address_id = first_address.get('id') or first_address.get('addressid')
             
             if default_address_id:
-                print(f"✓ Adresse principale du client existant trouvée: {default_address_id}")
+                print(f"✓ Adresse principale du client existant: {default_address_id}")
             else:
                 print("⚠ Aucune adresse principale trouvée pour le client existant")
         else:
             # Création du nouveau client
             print("\n→ Création d'un nouveau client...")
-            print(f"Paramètres de création: {json.dumps(client_data, indent=2, ensure_ascii=False)}")
+            # print(f"Paramètres de création: {json.dumps(client_data, indent=2, ensure_ascii=False)}")
             
             client_response = sellsy_api.create_client(client_data)
-            print(f"\nRéponse création client (complète): {json.dumps(client_response, indent=2, ensure_ascii=False, default=str)}")
+            # print(f"\nRéponse création client: {json.dumps(client_response, indent=2, ensure_ascii=False, default=str)}")
 
             # Récupérer l'ID du client depuis la réponse
             client_id = None
             if isinstance(client_response, dict) and client_response.get('status') == 'success':
                 response_data = client_response.get('response', {})
-                # Client.create retourne {"response": {"client_id": "XXXXX"}}
                 client_id = response_data.get('client_id') or response_data.get('id')
                 print(f"\n✓ Nouveau client créé avec l'ID: {client_id}")
                 
-                # Récupérer l'ID de l'adresse principale créée avec le client
+                # Récupérer l'ID de l'adresse principale
                 if response_data.get('addressid'):
                     default_address_id = response_data.get('addressid')
-                    print(f"✓ Adresse principale créée avec le client (addressid): {default_address_id}")
+                    print(f"✓ Adresse principale créée (addressid): {default_address_id}")
                 elif response_data.get('address'):
                     if isinstance(response_data.get('address'), dict):
                         default_address_id = response_data.get('address', {}).get('id')
-                        print(f"✓ Adresse principale créée avec le client (address.id): {default_address_id}")
+                        print(f"✓ Adresse principale créée (address.id): {default_address_id}")
                 else:
-                    print("⚠ Aucune adresse principale retournée dans la réponse de création du client")
+                    print("⚠ Aucune adresse principale retournée")
             else:
-                print(f"✗ ERREUR lors de la création du client: {client_response.get('error')}")
+                print(f"✗ ERREUR création client: {client_response.get('error')}")
 
-            # Si c'est une entreprise avec un nom et prénom, créer un contact associé
+            # Création contact
             if client_data.get('company_name') and (client_data.get('first_name') or client_data.get('last_name')):
-                print(f"\n→ Création d'un contact pour la société {client_id}...")
+                print(f"\n→ Création contact pour {client_id}...")
                 contact_response = sellsy_api.create_contact(client_data, str(client_id))
-                print(f"Réponse création contact: {json.dumps(contact_response, indent=2, ensure_ascii=False, default=str)}")
+                # print(f"Réponse création contact: {json.dumps(contact_response, indent=2, ensure_ascii=False, default=str)}")
 
                 if contact_response.get('status') == 'success':
                     contact_id = contact_response.get('response', {}).get('id')
-                    print(f"✓ Contact créé avec succès: {contact_id}")
+                    print(f"✓ Contact créé: {contact_id}")
                 else:
-                    print(f"✗ Erreur lors de la création du contact: {contact_response.get('error')}")
+                    print(f"✗ Erreur création contact: {contact_response.get('error')}")
         
         # Créer l'adresse de livraison séparée
-        print("\n" + "="*80, flush=True)
-        print("ÉTAPE 2: Création de l'adresse de livraison", flush=True)
-        print("="*80, flush=True)
-        print(f"Client ID: {client_id}", flush=True)
-        print(f"Adresse de livraison reçue: {json.dumps(delivery_address, indent=2, ensure_ascii=False)}", flush=True)
+        print(f"\nTraitement adresse livraison pour client {client_id}...", flush=True)
+        # print(f"Adresse de livraison reçue: {json.dumps(delivery_address, indent=2, ensure_ascii=False)}", flush=True)
         sys.stdout.flush()
         
         delivery_address_id = None
         if delivery_address.get('address'):
-            print(f"\n→ Création de l'adresse de livraison pour le client {client_id}...")
             delivery_address_data = {
                 'address': delivery_address.get('address', ''),
                 'city': delivery_address.get('city', ''),
@@ -876,16 +867,15 @@ def create_client_and_opportunity(order_data: Dict) -> Dict:
                 'last_name': delivery_address.get('lastName', ''),
                 'company_name': delivery_address.get('companyName', '')
             }
-            print(f"Données d'adresse préparées: {json.dumps(delivery_address_data, indent=2, ensure_ascii=False)}")
+            # print(f"Données d'adresse préparées: {json.dumps(delivery_address_data, indent=2, ensure_ascii=False)}")
             
             delivery_address_response = sellsy_api.add_address_to_client(delivery_address_data, str(client_id), "delivery")
-            print(f"\nRéponse création adresse de livraison (complète): {json.dumps(delivery_address_response, indent=2, ensure_ascii=False, default=str)}")
+            # print(f"\nRéponse création adresse de livraison: {json.dumps(delivery_address_response, indent=2, ensure_ascii=False, default=str)}")
             
             if delivery_address_response.get('status') == 'success':
                 response_data = delivery_address_response.get('response', {})
-                print(f"\nStructure de la réponse (response): {json.dumps(response_data, indent=2, ensure_ascii=False, default=str)}")
+                # print(f"\nStructure de la réponse (response): {json.dumps(response_data, indent=2, ensure_ascii=False, default=str)}")
                 
-                # L'API Sellsy peut retourner l'ID de différentes manières
                 delivery_address_id = None
                 if isinstance(response_data, dict):
                     delivery_address_id = (
@@ -896,101 +886,79 @@ def create_client_and_opportunity(order_data: Dict) -> Dict:
                 elif isinstance(response_data, (int, str)):
                     delivery_address_id = str(response_data)
                 
-                print(f"\n✓ Adresse de livraison créée avec l'ID: {delivery_address_id}")
+                print(f"✓ Adresse de livraison créée ID: {delivery_address_id}")
                 
                 if not delivery_address_id:
-                     # Tentative de fallback sur les logs de debug
                     print(f"Tentatives de récupération de l'ID échouées sur: {response_data}")
                 
                 # Mettre à jour le client pour définir cette adresse comme adresse de livraison principale
                 if delivery_address_id:
-                    print(f"\n→ Mise à jour du client {client_id} pour définir l'adresse de livraison principale...")
-                    print(f"Paramètres de mise à jour: maindelivaddressid = {delivery_address_id}")
+                    print(f"→ Mise à jour adresse livraison principale {client_id}...")
                     
                     update_response = sellsy_api.update_client(str(client_id), {
                         'maindelivaddressid': str(delivery_address_id)
                     })
-                    print(f"Réponse mise à jour client (complète): {json.dumps(update_response, indent=2, ensure_ascii=False, default=str)}")
+                    # print(f"Réponse mise à jour client: {json.dumps(update_response, indent=2, ensure_ascii=False, default=str)}")
                     
                     if update_response.get('status') != 'success':
-                        print(f"✗ ATTENTION: La mise à jour de l'adresse de livraison principale a échoué")
+                        print(f"✗ ATTENTION: Echec mise à jour adresse livraison principale")
                         print(f"  Erreur: {update_response.get('error')}")
                     else:
-                        print(f"✓ Adresse de livraison principale définie avec succès")
+                        print(f"✓ Adresse livraison principale OK")
                 else:
-                    print(f"✗ ATTENTION: Impossible de récupérer l'ID de l'adresse de livraison créée")
-                    print(f"  Structure de response_data: {type(response_data)} = {response_data}")
+                    print(f"✗ ATTENTION: Impossible de récupérer l'ID adresse livraison")
             else:
                 error_msg = delivery_address_response.get('error') or delivery_address_response.get('message') or str(delivery_address_response)
-                print(f"\n✗ ERREUR lors de la création de l'adresse de livraison")
-                print(f"  Message d'erreur: {error_msg}")
-                print(f"  Réponse complète: {json.dumps(delivery_address_response, indent=2, ensure_ascii=False, default=str)}")
+                print(f"✗ ERREUR création adresse livraison: {error_msg}")
                 # En cas d'erreur, utiliser l'adresse principale par défaut
                 delivery_address_id = default_address_id
-                print(f"  → Utilisation de l'adresse principale par défaut: {default_address_id}")
+                print(f"  → Fallback adresse principale: {default_address_id}")
         else:
-            print(f"\n⚠ Pas d'adresse de livraison fournie (champ 'address' vide ou manquant)")
-            print(f"  Contenu de delivery_address: {json.dumps(delivery_address, indent=2, ensure_ascii=False)}")
+            print(f"⚠ Pas d'adresse de livraison fournie")
         
-        # Déterminer l'ID de l'adresse de facturation à utiliser
-        print("\n" + "="*80)
-        print("ÉTAPE 3: Gestion de l'adresse de facturation")
-        print("="*80)
-        print(f"Même adresse de facturation que livraison: {same_billing_address}")
+        # Gestion adresse facturation
+        print(f"Même adresse facturation: {same_billing_address}")
         
         billing_address_id = None
         if same_billing_address:
-            # Si l'adresse de facturation est identique, utiliser l'adresse de livraison
             billing_address_id = delivery_address_id if delivery_address_id else default_address_id
             if billing_address_id:
-                print(f"✓ Adresse de facturation identique à l'adresse de livraison")
-                print(f"  Utilisation de l'adresse de livraison: {billing_address_id}")
+                print(f"✓ Facturation = Livraison ({billing_address_id})")
             else:
-                print(f"⚠ Aucune adresse disponible pour la facturation")
+                print(f"⚠ Aucune adresse dispo pour facturation")
         elif billing_address and billing_address.get('address'):
-            # Si l'adresse de facturation est différente, créer une nouvelle adresse
-            print(f"\n→ Création d'une adresse de facturation différente pour le client {client_id}...")
-            print(f"Données d'adresse de facturation: {json.dumps(billing_address, indent=2, ensure_ascii=False)}")
+            print(f"→ Création adresse facturation...")
+            # print(f"Données: {json.dumps(billing_address, indent=2, ensure_ascii=False)}")
             
             billing_address_response = sellsy_api.add_address_to_client(billing_address, str(client_id), "billing")
-            print(f"Réponse création adresse de facturation (complète): {json.dumps(billing_address_response, indent=2, ensure_ascii=False, default=str)}")
+            # print(f"Réponse: {json.dumps(billing_address_response, indent=2, ensure_ascii=False, default=str)}")
             
             if billing_address_response.get('status') == 'success':
                 response_data = billing_address_response.get('response', {})
                 billing_address_id = response_data.get('address_id') or response_data.get('id')
-                print(f"✓ Adresse de facturation créée avec l'ID: {billing_address_id}")
+                print(f"✓ Adresse facturation créée ID: {billing_address_id}")
             else:
                 error_msg = billing_address_response.get('error') or billing_address_response.get('message') or str(billing_address_response)
-                print(f"✗ Erreur lors de la création de l'adresse de facturation: {error_msg}")
-                # En cas d'erreur, utiliser l'adresse principale par défaut
+                print(f"✗ Erreur création adresse facturation: {error_msg}")
                 billing_address_id = default_address_id
-                print(f"  → Utilisation de l'adresse principale par défaut: {default_address_id}")
-        else:
-            print(f"⚠ Pas d'adresse de facturation fournie ou différente")
+                print(f"  → Fallback adresse principale: {default_address_id}")
         
-        # Mettre à jour les informations de facturation du client si nécessaire
+        # Notes SIREN/SIRET facturation
         if billing_address and (billing_address.get('siren') or billing_address.get('siret')):
-            # Si l'adresse de facturation a un SIREN/SIRET différent, on pourrait mettre à jour le client
-            # Pour l'instant, on note juste cette information dans les notes
             if client_data.get('notes'):
                 client_data['notes'] += f"\nSIREN facturation: {billing_address.get('siren', '')}"
                 client_data['notes'] += f"\nSIRET facturation: {billing_address.get('siret', '')}"
 
         if not client_id:
-            print(f"Impossible de récupérer l'ID du client. Réponse complète: {client_response if 'client_response' in locals() else 'N/A'}")
+            # print(f"Impossible de récupérer l'ID du client. Réponse: {client_response if 'client_response' in locals() else 'N/A'}")
             raise Exception("Impossible de récupérer l'ID du client")
 
-        # Préparation des données du devis
+        # Préparation devis
         product_names = [product.get('nom_commercial', product.get('product', '')) for product in selected_products]
-        estimate_subject = f"Devis - {', '.join(product_names[:3])}"  # Limite à 3 produits pour le sujet
+        estimate_subject = f"Devis - {', '.join(product_names[:3])}"
 
-        # Récupérer les notes des produits depuis order_data
         product_notes = order_data.get('product_notes', '')
-
-        # Construire les notes du devis avec toutes les informations
         estimate_notes_parts = []
-
-        # Ajouter les notes de livraison de l'adresse
         if delivery_address.get('notes'):
             estimate_notes_parts.append(f"Notes de livraison: {delivery_address.get('notes')}")
 
@@ -999,93 +967,35 @@ def create_client_and_opportunity(order_data: Dict) -> Dict:
         estimate_data = {
             'client_id': client_id,
             'contact_id': contact_id if 'contact_id' in locals() else None,
-            'billing_address_id': billing_address_id,  # ID de l'adresse de facturation
-            'delivery_address_id': delivery_address_id,  # ID de l'adresse de livraison
+            'billing_address_id': billing_address_id,
+            'delivery_address_id': delivery_address_id,
             'name': estimate_subject,
             'products': selected_products,
-            'product_notes': product_notes,  # Notes spécifiques aux produits
-            'notes': estimate_notes  # Notes générales du devis
+            'product_notes': product_notes,
+            'notes': estimate_notes
         }
 
         # Création du devis
-        print("\n" + "="*80)
-        print("ÉTAPE 4: Création du devis")
-        print("="*80)
-        print(f"Création du devis pour le client {client_id}...")
+        print(f"\nCréation du devis pour {client_id}...")
         estimate_response = sellsy_api.create_estimate(estimate_data)
-        print(f"Réponse création devis: {json.dumps(estimate_response, indent=2, ensure_ascii=False, default=str)}")
+        # print(f"Réponse devis: {json.dumps(estimate_response, indent=2, ensure_ascii=False, default=str)}")
 
         estimate_id = None
         if estimate_response.get('status') == 'success':
             response_data = estimate_response.get('response', {})
             estimate_id = response_data.get('doc_id') or response_data.get('docid') or response_data.get('id')
-            print(f"✓ Devis créé avec succès: {estimate_id}")
+            print(f"✓ Devis créé ID: {estimate_id}")
         else:
-            print(f"✗ Erreur lors de la création du devis: {estimate_response.get('error')}")
+            print(f"✗ Erreur création devis: {estimate_response.get('error')}")
         
-        # Vérification des adresses du client après création du devis
-        print("\n" + "="*80, flush=True)
-        print("ÉTAPE 5: Vérification des adresses du client", flush=True)
-        print("="*80, flush=True)
-        print(f"Récupération des informations complètes du client {client_id}...", flush=True)
-        sys.stdout.flush()
-        
-        # Récupérer le client complet avec Client.getOne
-        print(f"\n[API CALL] Client.getOne pour client_id={client_id}", flush=True)
-        full_client = sellsy_api.get_client_by_id(str(client_id))
-        sys.stdout.flush()
-        
-        if full_client:
-            print(f"\n✓ Client récupéré avec succès", flush=True)
-            print(f"Structure complète du client: {json.dumps(full_client, indent=2, ensure_ascii=False, default=str)}", flush=True)
-            
-            # Extraire les informations d'adresse du client
-            print(f"\n--- INFORMATIONS D'ADRESSES DU CLIENT ---", flush=True)
-            print(f"Adresse principale (address): {full_client.get('address', 'N/A')}", flush=True)
-            print(f"Adresse de livraison (shippingAddress): {full_client.get('shippingAddress', 'N/A')}", flush=True)
-            print(f"ID adresse principale (mainaddressid): {full_client.get('mainaddressid', 'N/A')}", flush=True)
-            print(f"ID adresse livraison principale (maindelivaddressid): {full_client.get('maindelivaddressid', 'N/A')}", flush=True)
-            
-            # Récupérer toutes les adresses via Address.getList
-            print(f"\n[API CALL] Address.getList pour thirdid={client_id}", flush=True)
-            addresses_list = sellsy_api.get_client_addresses(str(client_id))
-            sys.stdout.flush()
-            if addresses_list:
-                print(f"✓ Adresses récupérées avec succès")
-                print(f"Structure complète des adresses: {json.dumps(addresses_list, indent=2, ensure_ascii=False, default=str)}")
-                
-                # Extraire les adresses individuelles
-                result = addresses_list.get('result', {})
-                if isinstance(result, dict):
-                    print(f"\n--- LISTE DES ADRESSES DU CLIENT ---")
-                    for addr_id, addr_data in result.items():
-                        print(f"\nAdresse ID: {addr_id}")
-                        print(f"  Nom: {addr_data.get('name', 'N/A')}")
-                        print(f"  Part1: {addr_data.get('part1', 'N/A')}")
-                        print(f"  Part2: {addr_data.get('part2', 'N/A')}")
-                        print(f"  Code postal: {addr_data.get('zip', 'N/A')}")
-                        print(f"  Ville: {addr_data.get('town', 'N/A')}")
-                        print(f"  Pays: {addr_data.get('countrycode', 'N/A')}")
-                        print(f"  Type: {addr_data.get('type', 'N/A')}")
-                elif isinstance(result, list):
-                    print(f"\n--- LISTE DES ADRESSES DU CLIENT ({len(result)} adresse(s)) ---")
-                    for idx, addr_data in enumerate(result):
-                        print(f"\nAdresse #{idx + 1}")
-                        print(f"  {json.dumps(addr_data, indent=2, ensure_ascii=False, default=str)}")
-                else:
-                    print(f"⚠ Format de réponse inattendu pour les adresses: {type(result)}")
-            else:
-                print(f"✗ Aucune adresse trouvée ou erreur lors de la récupération")
-        else:
-            print(f"✗ Impossible de récupérer les informations du client")
-
+        # Fin du traitement
         return {
             'success': True,
             'client_id': client_id,
             'contact_id': contact_id if 'contact_id' in locals() else None,
             'estimate_id': estimate_id,
             'client_created': existing_client is None,
-            'message': 'Client, contact et devis créés avec succès dans Sellsy' if estimate_id else 'Client créé mais erreur lors de la création du devis'
+            'message': 'Client, contact et devis créés avec succès' if estimate_id else 'Client créé mais erreur devis'
         }
         
     except Exception as e:
