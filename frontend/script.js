@@ -371,7 +371,11 @@ function populateCategorySelect() {
     appState.categories.forEach(category => {
         const option = document.createElement('option');
         option.value = category;
-        option.textContent = category;
+        
+        // Nettoyer le nom de la catégorie pour l'affichage (enlever BBD/BDD)
+        let displayName = category.replace(/^(BBD|BDD)\s+/i, '').trim();
+        option.textContent = displayName;
+        
         elements.categorySelect.appendChild(option);
     });
 }
