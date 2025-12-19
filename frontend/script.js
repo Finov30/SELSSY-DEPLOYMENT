@@ -930,15 +930,14 @@ function updateSelectedProductsDisplay() {
         const productId = product.code_produit || `${product.product_category}-${product.nom_commercial}`;
         item.dataset.productId = productId;
         
-        const cost = parseFloat(product.cout_achat_ht_2025) || 0;
-        const costWithMultiplier = cost * 1.8; // Multiplication par 1.8
-        const totalCost = costWithMultiplier * product.quantity;
+        const price = parseFloat(product.tarif_vente_2025) || 0;
+        const totalCost = price * product.quantity;
         
         item.innerHTML = `
             <div class="selected-item-info">
                 <div class="selected-item-name">${product.nom_commercial}</div>
                 <div class="selected-item-details">
-                    Valeur unitaire: ${formatPrice(costWithMultiplier)} | Total: ${formatPrice(totalCost)}
+                    Valeur unitaire: ${formatPrice(price)} | Total: ${formatPrice(totalCost)}
                 </div>
             </div>
             <div class="selected-item-actions">
@@ -1038,13 +1037,13 @@ function updateCostGauge() {
     let totalCost = 0;
     let productCount = 0;
     
-    // Calculer le coût total des produits sélectionnés (multiplié par 1.8)
+    // Calculer le coût total des produits sélectionnés
     appState.selectedProducts.forEach(product => {
-        const cost = parseFloat(product.cout_achat_ht_2025) || 0;
+        const price = parseFloat(product.tarif_vente_2025) || 0;
         const quantity = product.quantity || 1;
-        totalCost += (cost * quantity) * 1.8; // Multiplication par 1.8
+        totalCost += price * quantity;
         productCount += quantity;
-        console.log(`Produit: ${product.nom_commercial}, Coût: ${cost}, Qté: ${quantity}, Total: ${cost * quantity * 1.8}`);
+        console.log(`Produit: ${product.nom_commercial}, Prix: ${price}, Qté: ${quantity}, Total: ${price * quantity}`);
     });
     
     // Calculer le pourcentage (100% = 1000€ minimum)
@@ -1104,12 +1103,12 @@ function animateValueChange(elementId, newValue) {
 
 // Mise à jour des boutons de navigation
 function updateNavigationButtons() {
-    // Calculer la valeur totale du panier (multiplié par 1.8)
+    // Calculer la valeur totale du panier
     let totalCost = 0;
     appState.selectedProducts.forEach(product => {
-        const cost = parseFloat(product.cout_achat_ht_2025) || 0;
+        const price = parseFloat(product.tarif_vente_2025) || 0;
         const quantity = product.quantity || 1;
-        totalCost += (cost * quantity) * 1.8;
+        totalCost += price * quantity;
     });
     
     // Le bouton est activé seulement si on a des produits ET que le panier atteint 1000€ minimum
@@ -1136,12 +1135,12 @@ function goToStep(step) {
             return;
         }
         
-        // Calculer la valeur totale du panier (multiplié par 1.8)
+        // Calculer la valeur totale du panier
         let totalCost = 0;
         appState.selectedProducts.forEach(product => {
-            const cost = parseFloat(product.cout_achat_ht_2025) || 0;
+            const price = parseFloat(product.tarif_vente_2025) || 0;
             const quantity = product.quantity || 1;
-            totalCost += (cost * quantity) * 1.8;
+            totalCost += price * quantity;
         });
         
         if (totalCost < 1000) {
@@ -1217,16 +1216,15 @@ function updateConfirmationDisplay() {
     // Produits commandés
     elements.orderProductsList.innerHTML = '';
     appState.selectedProducts.forEach(product => {
-        const cost = parseFloat(product.cout_achat_ht_2025) || 0;
-        const costWithMultiplier = cost * 1.8; // Multiplication par 1.8
-        const totalCost = costWithMultiplier * product.quantity;
+        const price = parseFloat(product.tarif_vente_2025) || 0;
+        const totalCost = price * product.quantity;
         
         const item = document.createElement('div');
         item.className = 'order-product-item';
         item.innerHTML = `
             <div>
                 <strong>${product.nom_commercial}</strong><br>
-                <small>Qté: ${product.quantity} | Valeur unitaire: ${formatPrice(costWithMultiplier)} | Total: ${formatPrice(totalCost)}</small>
+                <small>Qté: ${product.quantity} | Valeur unitaire: ${formatPrice(price)} | Total: ${formatPrice(totalCost)}</small>
             </div>
         `;
         elements.orderProductsList.appendChild(item);

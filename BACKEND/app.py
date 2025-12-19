@@ -69,7 +69,7 @@ def load_products():
                     type_cadre = clean_value(row[1])
                     format_cadre = clean_value(row[2])
                     nom_cadre = clean_value(row[14])
-                    cout_achat = clean_value(row[32])
+                    tarif_vente = clean_value(row[12])
                     
                     reference_atelier = clean_value(row[9])
                     description_maison_raphael = clean_value(row[30])
@@ -89,7 +89,7 @@ def load_products():
                                 'product_category': product_name,
                                 'nom_commercial': nom_commercial,
                                 'frame_size': format_cadre,
-                                'cout_achat_ht_2025': cout_achat,
+                                'tarif_vente_2025': tarif_vente,
                                 'code_produit': code_produit,
                                 'type_cadre': type_cadre,
                                 'nom_cadre': nom_cadre,
@@ -191,7 +191,7 @@ def get_products_by_category(category):
                 type_cadre = clean_value(row[1])
                 format_cadre = clean_value(row[2])
                 nom_cadre = clean_value(row[14])  # Nom du cadre (ex: ANDREA)
-                cout_achat = clean_value(row[32])  # COUT ACHAT HT 2025 (colonne 32)
+                tarif_vente = clean_value(row[12])  # TARIF VENTE A 2025 (colonne 12)
                 
                 # Récupérer les valeurs binaires
                 vitre_binaire = clean_value(row[17])  # VITRE BINAIRE (1/0)
@@ -219,7 +219,7 @@ def get_products_by_category(category):
                             'product_category': category,
                             'nom_commercial': nom_commercial,
                             'frame_size': format_cadre,
-                            'cout_achat_ht_2025': cout_achat,
+                            'tarif_vente_2025': tarif_vente,
                             'code_produit': code_produit,
                             'type_cadre': type_cadre,
                             'nom_cadre': nom_cadre,
