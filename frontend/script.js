@@ -784,7 +784,7 @@ function createProductCard(product) {
         <!-- Caractéristiques du produit -->
         <div class="product-characteristics">
             <span class="char-badge ${hasVitre ? 'vitre' : 'sans-vitre'}">
-                ${hasVitre ? 'Vitre' : 'Sans vitre'}
+                ${hasVitre ? 'Verre' : 'Sans verre'}
             </span>
             <span class="char-badge ${hasRehausse ? 'rehausse' : 'sans-rehausse'}">
                 ${hasRehausse ? 'Rehausse' : 'Sans rehausse'}

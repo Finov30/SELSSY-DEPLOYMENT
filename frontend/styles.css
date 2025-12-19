@@ -37,6 +37,51 @@ body {
     opacity: 0.9;
 }
 
+/* Bannière d'information Plexiglass */
+.plexiglass-banner {
+    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+    border: 2px solid #ffc107;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 30px;
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.plexiglass-banner i {
+    color: #856404;
+    font-size: 1.5rem;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.plexiglass-banner .banner-content {
+    flex: 1;
+    color: #856404;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.plexiglass-banner .banner-content strong {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 1.05rem;
+}
+
+.plexiglass-banner a {
+    color: #E01001;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.plexiglass-banner a:hover {
+    color: #8B0000;
+    text-decoration: underline;
+}
+
 /* Steps Navigation */
 .steps {
     display: flex;
