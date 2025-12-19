@@ -296,15 +296,12 @@ function loadAllColors() {
         // Extraire les couleurs uniques depuis les produits
         const colors = new Set();
         appState.products.forEach(product => {
-            if (product.type_cadre) {
-                // Extraire la couleur du type de cadre (ex: "ENTRE-2-VERRES BLANC" -> "BLANC")
-                const colorMatch = product.type_cadre.match(/\b(BLANC|NOIR|ROUGE|BLEU|VERT|JAUNE|ORANGE|VIOLET|ROSE|GRIS|MARRON|BEIGE)\b/i);
-                if (colorMatch) {
-                    colors.add(colorMatch[1].toUpperCase());
-                }
+            if (product.coloris && product.coloris !== '' && product.coloris !== 'nan') {
+                // Utiliser directement le champ coloris de la colonne 15
+                colors.add(product.coloris.toUpperCase().trim());
             }
         });
-        
+
         appState.colors = Array.from(colors).sort();
         populateColorSelect();
     } catch (error) {
@@ -319,18 +316,16 @@ function loadColorsForCategory(category) {
         const categoryProducts = appState.products.filter(
             product => product.product_category === category
         );
-        
+
         // Extraire les couleurs uniques
         const colors = new Set();
         categoryProducts.forEach(product => {
-            if (product.type_cadre) {
-                const colorMatch = product.type_cadre.match(/\b(BLANC|NOIR|ROUGE|BLEU|VERT|JAUNE|ORANGE|VIOLET|ROSE|GRIS|MARRON|BEIGE)\b/i);
-                if (colorMatch) {
-                    colors.add(colorMatch[1].toUpperCase());
-                }
+            if (product.coloris && product.coloris !== '' && product.coloris !== 'nan') {
+                // Utiliser directement le champ coloris de la colonne 15
+                colors.add(product.coloris.toUpperCase().trim());
             }
         });
-        
+
         // Mettre à jour le sélecteur de couleurs
         populateColorSelectForCategory(Array.from(colors).sort());
     } catch (error) {
@@ -600,9 +595,9 @@ function applyAllFilters() {
     // Filtrer par couleur si une couleur est sélectionnée
     if (selectedColor) {
         filteredProducts = filteredProducts.filter(product => {
-            if (product.type_cadre) {
-                const colorMatch = product.type_cadre.match(/\b(BLANC|NOIR|ROUGE|BLEU|VERT|JAUNE|ORANGE|VIOLET|ROSE|GRIS|MARRON|BEIGE)\b/i);
-                return colorMatch && colorMatch[1].toUpperCase() === selectedColor;
+            if (product.coloris) {
+                // Utiliser directement le champ coloris
+                return product.coloris.toUpperCase().trim() === selectedColor;
             }
             return false;
         });
@@ -773,16 +768,10 @@ function createProductCard(product) {
     const hasRehausse = product.rehausse_binaire === 1;
     const hasPossibiliteChevalet = product.possibilite_chevalet_binaire === 1;
     
-    // Fonction pour extraire la couleur du type_cadre (même logique que le filtre Coloris)
-    const extractColor = (typeCadre) => {
-        if (typeCadre) {
-            const colorMatch = typeCadre.match(/\b(BLANC|NOIR|ROUGE|BLEU|VERT|JAUNE|ORANGE|VIOLET|ROSE|GRIS|MARRON|BEIGE)\b/i);
-            return colorMatch ? colorMatch[1].toUpperCase() : typeCadre;
-        }
-        return 'N/A';
-    };
-    
-    const productColor = extractColor(product.type_cadre);
+    // Utiliser directement le champ coloris
+    const productColor = (product.coloris && product.coloris !== '' && product.coloris !== 'nan')
+        ? product.coloris
+        : 'N/A';
     
     card.innerHTML = `
         <h3>${product.nom_commercial}</h3>

@@ -69,6 +69,7 @@ def load_products():
                     type_cadre = clean_value(row[1])
                     format_cadre = clean_value(row[2])
                     nom_cadre = clean_value(row[14])
+                    coloris = clean_value(row[15])
                     tarif_vente = clean_value(row[12])
                     
                     reference_atelier = clean_value(row[9])
@@ -93,6 +94,7 @@ def load_products():
                                 'code_produit': code_produit,
                                 'type_cadre': type_cadre,
                                 'nom_cadre': nom_cadre,
+                                'coloris': coloris,
                                 'vitre_binaire': vitre_binaire,
                                 'rehausse_binaire': rehausse_binaire,
                                 'chevalet_binaire': chevalet_binaire,
@@ -191,6 +193,7 @@ def get_products_by_category(category):
                 type_cadre = clean_value(row[1])
                 format_cadre = clean_value(row[2])
                 nom_cadre = clean_value(row[14])  # Nom du cadre (ex: ANDREA)
+                coloris = clean_value(row[15])  # COLORIS (colonne 15)
                 tarif_vente = clean_value(row[12])  # TARIF VENTE A 2025 (colonne 12)
                 
                 # Récupérer les valeurs binaires
@@ -223,6 +226,7 @@ def get_products_by_category(category):
                             'code_produit': code_produit,
                             'type_cadre': type_cadre,
                             'nom_cadre': nom_cadre,
+                            'coloris': coloris,
                             'vitre_binaire': vitre_binaire,
                             'rehausse_binaire': rehausse_binaire,
                             'chevalet_binaire': chevalet_binaire,
