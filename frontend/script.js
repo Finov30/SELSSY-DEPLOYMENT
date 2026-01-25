@@ -922,9 +922,23 @@ function updateSelectedProductsDisplay() {
         const price = parseFloat(product.tarif_vente_2025) || 0;
         const totalCost = price * product.quantity;
         
+        // Préparer les informations sur les options
+        const hasChevalet = product.chevalet_binaire == 1 || product.chevalet_binaire === '1';
+        const hasRehausse = product.rehausse_binaire == 1 || product.rehausse_binaire === '1';
+        const coloris = product.coloris || 'Non spécifié';
+        const format = product.frame_size || 'Non spécifié';
+
         item.innerHTML = `
             <div class="selected-item-info">
                 <div class="selected-item-name">${product.nom_commercial}</div>
+                <div class="selected-item-specs">
+                    <span class="spec-item"><strong>Format:</strong> ${format}</span>
+                    <span class="spec-item"><strong>Couleur:</strong> ${coloris}</span>
+                </div>
+                <div class="selected-item-options">
+                    <span class="option-item ${hasChevalet ? 'option-yes' : 'option-no'}">Chevalet: ${hasChevalet ? 'Oui' : 'Non'}</span>
+                    <span class="option-item ${hasRehausse ? 'option-yes' : 'option-no'}">Rehausse: ${hasRehausse ? 'Oui' : 'Non'}</span>
+                </div>
                 <div class="selected-item-details">
                     Valeur unitaire: ${formatPrice(price)} | Total: ${formatPrice(totalCost)}
                 </div>
@@ -1207,12 +1221,24 @@ function updateConfirmationDisplay() {
     appState.selectedProducts.forEach(product => {
         const price = parseFloat(product.tarif_vente_2025) || 0;
         const totalCost = price * product.quantity;
-        
+
+        // Préparer les informations sur les options
+        const hasChevalet = product.chevalet_binaire == 1 || product.chevalet_binaire === '1';
+        const hasRehausse = product.rehausse_binaire == 1 || product.rehausse_binaire === '1';
+        const coloris = product.coloris || 'Non spécifié';
+        const format = product.frame_size || 'Non spécifié';
+
         const item = document.createElement('div');
         item.className = 'order-product-item';
         item.innerHTML = `
             <div>
                 <strong>${product.nom_commercial}</strong><br>
+                <small class="order-product-specs">
+                    <span><strong>Format:</strong> ${format}</span> |
+                    <span><strong>Couleur:</strong> ${coloris}</span> |
+                    <span><strong>Chevalet:</strong> ${hasChevalet ? 'Oui' : 'Non'}</span> |
+                    <span><strong>Rehausse:</strong> ${hasRehausse ? 'Oui' : 'Non'}</span>
+                </small><br>
                 <small>Qté: ${product.quantity} | Valeur unitaire: ${formatPrice(price)} | Total: ${formatPrice(totalCost)}</small>
             </div>
         `;
